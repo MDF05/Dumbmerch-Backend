@@ -19,24 +19,33 @@ enum Role {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique
-  password String
-  profile  Profile[]
-  role     Role      @default(USER)
-  Cart     Product[]
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  password    String
+  profile     Profile?
+  role        Role     @default(USER)
+  cart        Cart[]
+  sendChat    Chats[]  @relation(name: "sender")
+  receiveChat Chats[]  @relation(name: "receiver")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model Profile {
   id          Int           @id @default(autoincrement())
-  userId      Int
-  user        User          @relation(fields: [userId], references: [id])
+  userId      Int           @unique
+  user        User?         @relation(fields: [userId], references: [id])
   name        String        @unique
+  image       String?
   address     String?
   gender      String?
   phone       String?
   Transaction Transaction[]
   Product     Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model Product {
@@ -48,30 +57,64 @@ model Product {
   images      ImageProduct[]
   profileId   Int?
 
-  createdAt   DateTime      @default(now())
   Profile     Profile?      @relation(fields: [profileId], references: [id], onDelete: Cascade)
   Category    Category?     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId  Int?
   Transaction Transaction[]
-  User        User?         @relation(fields: [userId], references: [id])
-  userId      Int?
+  Cart        Cart[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Cart {
+  id        Int  @id @default(autoincrement())
+  countItem Int  @default(1)
+  productId Int
+  userId    Int?
+
+  product Product @relation(fields: [productId], references: [id])
+  User    User?   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model Transaction {
-  id        Int @id @default(autoincrement())
-  profileId Int
-  productId Int
+  id            Int    @id @default(autoincrement())
+  transactionId String @unique
+  profileId     Int
+  productId     Int
+  countItem     Int    @default(1)
 
   profile Profile @relation(fields: [profileId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
-  @@unique([productId, profileId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Chats {
+  id         Int    @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  roomId     String
+  message    String
+
+  sender   User @relation(name: "sender", fields: [senderId], references: [id])
+  receiver User @relation(name: "receiver", fields: [receiverId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model Category {
   id       Int       @id @default(autoincrement())
   name     String    @unique
   products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model ImageProduct {
@@ -79,4 +122,7 @@ model ImageProduct {
   productId Int
   imageUrl  String
   products  Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
