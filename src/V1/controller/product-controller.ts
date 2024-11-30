@@ -25,7 +25,11 @@ class ProductController {
 
   async getAllProduct(req: Request, res: Response, next: NextFunction) {
     try {
-      const product = await productService.getAllProducts();
+      const querySearch = `${req.query.search}`
+      let product;
+      
+      if(querySearch == "undefined") product = await productService.getAllProducts();
+      else product = await productService.getAllProducts(querySearch)
 
       res.status(201).json(successResponse("Product get all", product, 201));
     } catch (err: unknown) {

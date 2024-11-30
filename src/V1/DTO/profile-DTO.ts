@@ -4,4 +4,5 @@ export interface profileDTO {
   phone: string;
   gender: string;
   address: string;
+  image?: string;
 }

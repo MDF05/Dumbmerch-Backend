@@ -9,7 +9,15 @@ class ProfileRepository {
         userId,
       },
       include: {
-        Transaction: true,
+        Transaction: {
+          include: {
+            product: {
+              include: {
+                images: true,
+              },
+            },
+          },
+        },
         user: {
           select: {
             email: true,
@@ -52,6 +60,7 @@ class ProfileRepository {
             email: true,
           },
         },
+        Transaction: true,
       },
     });
 

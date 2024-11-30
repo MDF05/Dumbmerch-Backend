@@ -7,8 +7,8 @@ class ProductService {
     return await productRepository.post(productDTO);
   }
 
-  async getAllProducts(): Promise<Product[]> {
-    return await productRepository.getAllProducts();
+  async getAllProducts(querySearch? : string): Promise<Product[]> {
+    return await productRepository.getAllProducts(querySearch);
   }
 
   async putProduct(productDTO: ProductDTO, productId: number): Promise<Product> {

@@ -5,6 +5,7 @@ import ProductRouter from "../V1/router/product-router";
 import CategoryRouter from "../V1/router/category-router";
 import CartRouter from "../V1/router/cart-router";
 import paymentRouter from "../V1/router/payment-router";
+import TransactionRouter from "../V1/router/transaction-router";
 
 const V1Router = Router();
 
@@ -14,5 +15,6 @@ V1Router.use(ProductRouter);
 V1Router.use(CategoryRouter);
 V1Router.use(CartRouter);
 V1Router.use(paymentRouter);
+V1Router.use(TransactionRouter);
 
 export default V1Router;

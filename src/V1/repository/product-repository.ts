@@ -19,8 +19,13 @@ class ProductRepository {
     });
   }
 
-  async getAllProducts(): Promise<Product[]> {
+  async getAllProducts(querySearch? : string): Promise<Product[]> {
+    const query = querySearch?.toLocaleLowerCase()
+
     return await prisma.product.findMany({
+      where : {
+        OR : [{name : {contains : query}}, {description : {contains : query}}, {price : {contains : query}}]
+      },
       include: {
         images: true,
       },

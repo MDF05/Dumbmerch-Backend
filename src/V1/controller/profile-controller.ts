@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import successResponse from "../utils/success-response";
 import profileService from "../service/profile-service";
 import { profileDTO } from "../DTO/profile-DTO";
+import cloudinary from "../libs/cloudinary";
 
 class ProfileController {
   async get(req: Request, res: Response, next: NextFunction) {
@@ -32,6 +33,12 @@ class ProfileController {
     try {
       const profileId: number = parseInt(req.params.profileId);
       const newProfile: profileDTO = req.body;
+
+      if (req.file) {
+        let image = await cloudinary.uploader([req.file] as any);
+        if (image) newProfile.image = image[0].imageUrl;
+      }
+
       const profile: Profile = await profileService.putProfileByProfileId(profileId, newProfile);
       res.json(successResponse("data received", { profile }));
     } catch (err: unknown) {
