@@ -14,7 +14,7 @@ const port = process.env.PORT || 3000;
 app.use(
   cors({
     // origin: "http://localhost:5173",
-    origin: "https://dumbemerch-frontend.vercel.app",
+    origin: ["https://dumbemerch-frontend.vercel.app", "https://dumbemerch-frontend-h1968pw1s-mdf05s-projects.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   }),
@@ -27,7 +27,7 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: {
     // origin: "http://localhost:5173",
-    origin: "https://dumbemerch-frontend.vercel.app",
+    origin: ["https://dumbemerch-frontend.vercel.app", "https://dumbemerch-frontend-h1968pw1s-mdf05s-projects.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   },
 });
