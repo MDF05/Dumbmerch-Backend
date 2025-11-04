@@ -13,35 +13,30 @@ const port = process.env.PORT || 3000;
 
 app.use(
   cors({
-    // origin: "http://localhost:5173",
-    origin: ["https://dumbemerch-frontend.vercel.app", "https://dumbemerch-frontend-h1968pw1s-mdf05s-projects.vercel.app"],
+    origin: "http://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
-  }),
+  })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/assets", express.static("./src/image"));
 
 const server = createServer(app);
 const io = new Server(server, {
-  cors: {
-    // origin: "http://localhost:5173",
-    origin: ["https://dumbemerch-frontend.vercel.app", "https://dumbemerch-frontend-h1968pw1s-mdf05s-projects.vercel.app"],
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  },
+  cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] },
 });
 
-io.on("connection", (socket) => {
-  socketHandler(socket, io);
-});
+io.on("connection", (socket) => socketHandler(socket, io));
 
 app.use("/api/v1/", V1Router);
-
-app.use("/", (req: Request, res: Response, next: NextFunction) => next(createError("PAGE NOT FOUND", 404)));
+app.use("/", (req: Request, res: Response, next: NextFunction) =>
+  next(createError("PAGE NOT FOUND", 404))
+);
 app.use(errorResponse);
 
 server.listen(port, async () => {
-  console.log("berhasil connect ke database");
-  console.log(`listening on port ${port}`);
+  console.log("✅ Server running...");
+  console.log(`📡 Listening on port ${port}`);
 });

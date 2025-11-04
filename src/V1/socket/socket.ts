@@ -1,10 +1,5 @@
 import { Server, Socket } from "socket.io";
-import prisma from "./../libs/prisma";
-import { Chats } from "@prisma/client";
-
-const idAdmins: string[] = ["1", "2", "3", "4", "5", "6"];
-let socketAdmin: Socket;
-const chatUsers: Chats[] = [];
+import prisma from "../libs/prisma";
 
 interface ChatDTO {
   roomId: string;
@@ -13,76 +8,61 @@ interface ChatDTO {
   message?: string;
 }
 
-export const socketHandler = async (socket: Socket, io: Server) => {
-  socket.on("send to server", async (data: ChatDTO) => {
-    const { receiverId, senderId, roomId } = data;
+export const socketHandler = (socket: Socket, io: Server) => {
+  console.log(`⚡ User connected: ${socket.id}`);
 
-    const historyChat: Chats[] = await prisma.chats.findMany({
-      where: { roomId: `${roomId}` },
+  // ===== JOIN ROOM =====
+  socket.on(
+    "join_room",
+    async (data: { senderId: number; receiverId: number }) => {
+      const { senderId, receiverId } = data;
+      const roomId = generateRoomId(senderId, receiverId);
+      socket.join(roomId);
+      console.log(`🟢 ${senderId} joined room ${roomId}`);
+
+      const chats = await prisma.chats.findMany({
+        where: { roomId },
+        orderBy: { createdAt: "asc" },
+      });
+
+      socket.emit("load_history", chats);
+    }
+  );
+
+  // ===== USER REQUEST ADMIN LIST =====
+  socket.on("get_admin_list", async () => {
+    const admins = await prisma.user.findMany({
+      where: { role: "ADMIN" },
+      include: { profile: true },
     });
-    socket.join(`${roomId}`);
-    socket.emit("send history to client", { chats: historyChat });
+    socket.emit("admin_list", admins);
   });
 
-  socket.on("get room admin", async (data: ChatDTO) => {
-    const { receiverId, senderId } = data;
-    const RoomChatAdmin = await prisma.user.findMany({
-      where: {
-        sendChat: {
-          some: {
-            receiverId: senderId,
-          },
-        },
-      },
-      include: {
-        profile: true,
-      },
+  // ===== ADMIN REQUEST USER LIST =====
+  socket.on("get_user_list", async () => {
+    const users = await prisma.user.findMany({
+      where: { role: "USER" },
+      include: { profile: true },
     });
-
-    socket.emit("send room admin", RoomChatAdmin);
+    socket.emit("user_list", users);
   });
 
-  socket.on("message", async (data: { message: string; roomId: string; senderId: number; receiverId: number }) => {
+  // ===== KIRIM PESAN =====
+  socket.on("send_message", async (data: ChatDTO) => {
     const { roomId, senderId, receiverId, message } = data;
-    const saveMessage = await prisma.chats.create({
-      data: {
-        roomId,
-        senderId,
-        receiverId,
-        message,
-      },
+
+    const saved = await prisma.chats.create({
+      data: { roomId, senderId, receiverId, message: message ?? "" },
     });
-    io.to(data.roomId).emit("data message", { message, roomId, senderId, receiverId });
+
+    io.to(roomId).emit("new_message", saved);
   });
 
   socket.on("disconnect", () => {
-    // console.log(socket.id + " disconnected");
+    console.log(`🔴 User disconnected: ${socket.id}`);
   });
 };
 
-// export const socketHandler = async (socket: Socket, io: Server) => {
-//   const userId = socket.handshake.query.userId;
-//   const adminId = socket.handshake.query.adminId;
-
-//   if (!idAdmins.includes(userId as string)) {
-//     if (!chatUsers.includes(userId as string)) chatUsers.push(userId as string);
-//     socket.join(`${userId}-${adminId}`);
-//     socket.emit("connected", { rooms: [`${userId}${adminId}`] });
-//     if (socketAdmin) {
-//       socketAdmin.join(`${userId}-${adminId}`);
-//     }
-//   } else {
-//     socketAdmin = socket;
-//     const listRooms = chatUsers.map((user) => `${user}-${adminId}`);
-//     socketAdmin.join(listRooms);
-//     socketAdmin.emit("connected", { rooms: listRooms });
-//   }
-
-//   socket.on("message", (data: { messages: string; roomId: string }) => {
-//     io.to(data.roomId).emit("data message", { messages: data.messages, userId });
-//   });
-
-//   socket.on("disconnect", () => {
-//     console.log(socket.id + " disconnected");
-//   });
-// };
+function generateRoomId(a: number, b: number) {
+  return [a, b].sort((x, y) => x - y).join("-");
+}

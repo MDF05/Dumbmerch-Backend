@@ -79,15 +79,14 @@ model Cart {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
-
 model Transaction {
-  id                 Int    @id @default(autoincrement())
+  id                 Int      @id @default(autoincrement())
   profileId          Int
   productId          Int
-  countItem          Int    @default(1)
+  countItem          Int      @default(1)
   fraud_status       String
-  gross_amount       String
-  order_id           String @unique
+  gross_amount       Decimal  // ubah dari String jadi Decimal
+  order_id           String   @unique
   payment_type       String
   status_code        String
   status_message     String
