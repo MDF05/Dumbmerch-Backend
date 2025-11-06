@@ -33,7 +33,7 @@ class ProfileController {
     try {
       const profileId: number = parseInt(req.params.profileId);
       const newProfile: profileDTO = req.body;
-
+      
       if (req.file) {
         let image = await cloudinary.uploader([req.file] as any);
         if (image) newProfile.image = image[0].imageUrl;
