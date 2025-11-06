@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000;
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://dumbemerch-frontend.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
@@ -25,7 +25,7 @@ app.use("/assets", express.static("./src/image"));
 
 const server = createServer(app);
 const io = new Server(server, {
-  cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] },
+  cors: { origin: "https://dumbemerch-frontend.vercel.app", methods: ["GET", "POST"] },
 });
 
 io.on("connection", (socket) => socketHandler(socket, io));
