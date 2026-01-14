@@ -51,7 +51,7 @@ The **Dumbmerch Backend** serves as the core logic layer for the Dumbmerch ecosy
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/dumbmerch-backend.git
+   git clone https://github.com/MDF05/dumbmerch-backend.git
    cd dumbmerch-backend
    ```
 
